@@ -45,7 +45,6 @@
                 android:onClick="editPlayers" />
 
             <Button
-                style="?"
                 android:id="@+id/repick_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -53,7 +52,6 @@
                 android:text="@string/repick_button" />
 
             <Button
-                style="?"
                 android:id="@+id/preferences_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

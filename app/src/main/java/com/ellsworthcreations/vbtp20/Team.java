@@ -51,7 +51,7 @@ public class Team extends LinkedList<Player> {
 		Skills averagePlayerSkills = this.getSkillAverages();
 		
 		// 	public Player (int playerID, String playerFirstName, String playerLastName, boolean playerActive, Skills skills) {
-		player = new Player(0, "Average", "Player", true, averagePlayerSkills);
+		player = new Player(0, "Average", "Player", true, averagePlayerSkills, null);
 	
 		return player;
 	}

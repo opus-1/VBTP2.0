@@ -51,17 +51,17 @@ public class PlayerDatabase extends SQLiteOpenHelper {
 			// prepopulate for testing purposes.
 			// in order: height, speed, throwing, catching, defense, competitive, experience
             Player x = new Player(0, "John", "Doe", true,
-                    new Skills(new int[]{4, 5, 4, 5, 4, 4, 3}));
+                    new Skills(new int[]{4, 5, 4, 5, 4, 4, 3}), this);
             x.setGender(Player.Gender.MALE);
             this.insertPlayer(x);
             x = new Player(0, "Jane", "Doe", true,
-                    new Skills(new int[]{3, 4, 3, 3, 3, 2, 4}));
+                    new Skills(new int[]{3, 4, 3, 3, 3, 2, 4}), this);
             x.setGender(Player.Gender.FEMALE);
             this.insertPlayer(x);
             this.insertPlayer(new Player(0, "Bob", "Deller", true,
-                    new Skills(new int[]{3, 5, 4, 4, 4, 3, 4})));
+                    new Skills(new int[]{3, 5, 4, 4, 4, 3, 4}), this));
             this.insertPlayer(new Player(0, "Larry", "Page", true,
-                    new Skills(new int[]{4, 4, 2, 2, 4, 5, 3})));
+                    new Skills(new int[]{4, 4, 2, 2, 4, 5, 3}), this));
 		}
 	}
 
@@ -238,7 +238,7 @@ public class PlayerDatabase extends SQLiteOpenHelper {
 		{
 			boolean isActive = false;
 			if(c.getInt(3) == 1) { isActive = true; }
-			Player thisPlayer = new Player(c.getInt(0), c.getString(1), c.getString(2), isActive);
+			Player thisPlayer = new Player(c.getInt(0), c.getString(1), c.getString(2), isActive, this);
 			if(oldVersion >= 10)
 			{ thisPlayer.setGenderAsInt(c.getInt(4)); }
 			
@@ -310,7 +310,7 @@ public class PlayerDatabase extends SQLiteOpenHelper {
 			if(c.getInt(3) == 1) { isActive = true; }
 			
 			// player id, first name, last name, and isActive
-			Player thisPlayer = new Player(c.getInt(0), c.getString(1), c.getString(2), isActive);
+			Player thisPlayer = new Player(c.getInt(0), c.getString(1), c.getString(2), isActive, this);
 			
 			// gender
 			thisPlayer.setGenderAsInt(c.getInt(4)); 

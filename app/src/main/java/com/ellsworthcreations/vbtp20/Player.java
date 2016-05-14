@@ -21,10 +21,38 @@ public class Player {
 	private Skills PlayerSkills = new Skills();
 	private Gender gender = Gender.MALE;
 	public static enum Gender { MALE, FEMALE };
-	
 	// 0 is male, 1 is female.
+
+	private PlayerDatabase db;
+
+	public Player(int nplayerID, String nplayerFirstName, String nplayerLastName, boolean nplayerActive, PlayerDatabase mydb)
+	{
+		playerID = nplayerID; // ID in database
+		playerFirstName = nplayerFirstName;
+		playerLastName = nplayerLastName;
+		playerActive = nplayerActive;
+		this.db = mydb;
+
+		PlayerSkills = new Skills();
+	}
+
+	public Player()
+	{
+		PlayerSkills = new Skills();
+	}
+
+	public Player (int playerID, String playerFirstName, String playerLastName, boolean playerActive, int[] skills, PlayerDatabase mydb) {
+
+		// create a new player object.
+		this.playerID = playerID; // may be -1
+		this.playerFirstName = playerFirstName;
+		this.playerLastName = playerLastName;
+		this.playerActive = playerActive;
+		PlayerSkills = new Skills(skills);
+		this.db = mydb;
+	}
 	
-	public Player (int playerID, String playerFirstName, String playerLastName, boolean playerActive, Skills skills) {
+	public Player (int playerID, String playerFirstName, String playerLastName, boolean playerActive, Skills skills, PlayerDatabase mydb) {
 
 		PlayerSkills = skills;
 		
@@ -33,6 +61,12 @@ public class Player {
 		this.playerFirstName = playerFirstName;
 		this.playerLastName = playerLastName;
 		this.playerActive = playerActive;
+		this.db = mydb;
+	}
+
+	public long save()
+	{
+		return db.editPlayer(this);
 	}
 	
 	public String getCSV()
@@ -90,31 +124,6 @@ public class Player {
 	{
 		return PlayerSkills;
 	}
-	
-	public Player(int nplayerID, String nplayerFirstName, String nplayerLastName, boolean nplayerActive)
-	{
-		playerID = nplayerID; // ID in database
-		playerFirstName = nplayerFirstName;
-		playerLastName = nplayerLastName;
-		playerActive = nplayerActive;
-		
-		PlayerSkills = new Skills();
-	}
-	
-	public Player()
-	{
-		PlayerSkills = new Skills();
-	}
-
-	public Player (int playerID, String playerFirstName, String playerLastName, boolean playerActive, int[] skills) {
-		
-		// create a new player object.
-		this.playerID = playerID; // may be -1
-		this.playerFirstName = playerFirstName;
-		this.playerLastName = playerLastName;
-		this.playerActive = playerActive;
-		PlayerSkills = new Skills(skills);
-	}
 
 	public String getName() {
 		if(playerFirstName != null 
@@ -168,7 +177,7 @@ public class Player {
 	}
 
 	public Player copy() {
-		Player p = new Player(playerID, playerFirstName, playerLastName, playerActive);
+		Player p = new Player(playerID, playerFirstName, playerLastName, playerActive, this.db);
 		Iterator<String> itr = PlayerSkills.keySet().iterator();
 		while(itr.hasNext())
 		{

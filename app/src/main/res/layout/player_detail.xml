@@ -10,42 +10,43 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_row="0"
-        android:layout_column="0">
-
-    </RadioGroup>
-
-    <RadioButton
-        android:id="@+id/gender_male_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/gender_male"
-        android:layout_below="@+id/editText"
+        android:layout_column="0"
+        android:layout_below="@+id/playerNameEditText"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true">
 
-    <RadioButton
-        android:id="@+id/gender_female_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/gender_female"
-        android:layout_below="@+id/editText"
-        android:layout_toRightOf="@+id/gender_male_id"
-        android:layout_toEndOf="@+id/gender_male_id"
-        android:layout_marginLeft="34dp"
-        android:layout_marginStart="34dp" />
+        <RadioButton
+            android:id="@+id/gender_male_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gender_male"
+            android:layout_below="@+id/playerNameEditText"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <RadioButton
+            android:id="@+id/gender_female_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gender_female"
+            android:layout_below="@+id/playerNameEditText"
+            android:layout_toRightOf="@+id/gender_male_id"
+            android:layout_toEndOf="@+id/gender_male_id"
+            android:layout_marginLeft="34dp"
+            android:layout_marginStart="34dp" />
+    </RadioGroup>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:text=""
+        android:hint="Name"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/playerNameEditText"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true" />
 
     <Switch
         android:layout_width="100dp"
@@ -53,8 +54,19 @@
         android:text="Active?"
         android:id="@+id/player_is_active_id"
         android:checked="false"
-        android:layout_below="@+id/gender_male_id"
-        android:layout_toRightOf="@+id/gender_selection"
-        android:layout_toEndOf="@+id/gender_selection" />
+        android:layout_above="@+id/skillsLayout"
+        android:layout_toRightOf="@+id/playerNameEditText"
+        android:layout_toEndOf="@+id/playerNameEditText" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/skillsLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/gender_selection">
+
+    </LinearLayout>
 
 </RelativeLayout>
