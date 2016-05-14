@@ -1,0 +1,60 @@
+<!--  gender -->
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RadioGroup
+        android:id="@+id/gender_selection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_row="0"
+        android:layout_column="0">
+
+    </RadioGroup>
+
+    <RadioButton
+        android:id="@+id/gender_male_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gender_male"
+        android:layout_below="@+id/editText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <RadioButton
+        android:id="@+id/gender_female_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gender_female"
+        android:layout_below="@+id/editText"
+        android:layout_toRightOf="@+id/gender_male_id"
+        android:layout_toEndOf="@+id/gender_male_id"
+        android:layout_marginLeft="34dp"
+        android:layout_marginStart="34dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Name"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Active?"
+        android:id="@+id/player_is_active_id"
+        android:checked="false"
+        android:layout_below="@+id/gender_male_id"
+        android:layout_toRightOf="@+id/gender_selection"
+        android:layout_toEndOf="@+id/gender_selection" />
+
+</RelativeLayout>
