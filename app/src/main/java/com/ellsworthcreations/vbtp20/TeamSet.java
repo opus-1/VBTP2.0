@@ -35,6 +35,29 @@ public class TeamSet extends LinkedList<Team> {
 		this.add(p);
 	}
 
+	public LinkedList<Integer> getLowestMembershipTeams() {
+		int lowestMembership = -1;
+		LinkedList<Integer> lowestMembershipTeams = new LinkedList<Integer>();
+		Iterator<Team> titr = this.iterator();
+		while (titr.hasNext()) {
+			Team tt = titr.next();
+			if (tt.size() < lowestMembership || lowestMembership == -1) {
+				lowestMembership = tt.size();
+			}
+		}
+
+		// now we have the lowest membership.  Now figure out who is in the running for next pick.
+		titr = this.iterator();
+		while (titr.hasNext()) {
+			Team tt = titr.next();
+			if (tt.size() == lowestMembership) {
+				//Log.d("LowestMembershipCalculation", "Team " + (teams.indexOf(tt)+1) + " is part of the Lowest Membership club...");
+				lowestMembershipTeams.add(this.indexOf(tt));
+			}
+		}
+		return lowestMembershipTeams;
+	}
+
 	public TeamSet copy()
 	{
 		// make a copy of each player object

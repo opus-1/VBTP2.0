@@ -6,8 +6,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -84,6 +90,9 @@ public class MainView extends AppCompatActivity {
         }
     };
 
+    // the currently displaying teamset.
+    public TeamSet chosenTeams =  null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +121,126 @@ public class MainView extends AppCompatActivity {
     public void editPlayers(View view) {
         Intent intent = new Intent(this, PlayerListActivity.class);
         startActivity(intent);
+    }
+
+    public void openSettings(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    public void pickTeams(View view) {
+        // this is to make sure we can get skill weights and stuff.
+        Preferences gp = VBTP.GlobalPreferences(this.getBaseContext());
+        Player[] allPlayers = VBTP.PlayerDB(this.getBaseContext()).getActivePlayersSortedByName();
+        Log.d("pickTeams", "length is: "+allPlayers.length);
+
+        // this needs to go into an async thing.
+        TeamPicker tp = new TeamPicker(2, allPlayers, chosenTeams, false);
+        chosenTeams = tp.repickTeams(true, true, (Button) view);
+        updateDisplayWithTeams(chosenTeams);
+    }
+
+    public void updateDisplayWithTeams(TeamSet teams) {
+        TextView tv = (TextView) findViewById(R.id.chosenTeams);
+        tv.setText("");
+        int teamBiggestScore = 0;
+        int teamSmallestScore = -1;
+        Skills highestSkills = new Skills();
+        Skills lowestSkills = new Skills(new int[]{0, 0, 0, 0, 0, 0, 0});
+
+        for (int i = 0; i < teams.size(); i++) {
+            int thisTeamNumber = i + 1;
+            int teamTotalScore = 0;
+
+            Team thisTeam = teams.get(i);
+            String playerList = "";
+            ListIterator<Player> itr = thisTeam.listIterator();
+            while (itr.hasNext()) {
+                Player thisPlayer = itr.next();
+
+                // get highest/lowest skills.
+                Skills teamSkills = thisTeam.getCumulativeSkills();
+                Iterator<String> tsitr = teamSkills.keySet().iterator();
+                //String TAG = "HighestLowestSkillComputation";
+                while (tsitr.hasNext()) {
+                    String key = tsitr.next();
+                    if (!highestSkills.containsKey(key)) {
+                        highestSkills.put(key, teamSkills.get(key));
+                        //Log.v("SkillMeasurements", "initialized highest " + key + " with: " + teamSkills.get(key));
+                    } else if (teamSkills.get(key) > highestSkills.get(key)) {
+                        highestSkills.put(key, teamSkills.get(key));
+                        //Log.v("SkillMeasurements", "set highest " + key + " to: " + teamSkills.get(key));
+                    }
+                    if (!lowestSkills.containsKey(key) || lowestSkills.get(key) == 0) {
+                        lowestSkills.put(key, teamSkills.get(key));
+                        //Log.v("SkillMeasurements", "initialized lowest " + key + " with: " + teamSkills.get(key));
+                    } else if (teamSkills.get(key) < lowestSkills.get(key) || lowestSkills.get(key) == 0) {
+                        lowestSkills.put(key, teamSkills.get(key));
+                        //Log.v("SkillMeasurements", "set lowest " + key + " to: " + teamSkills.get(key));
+                    }
+                    teamTotalScore += teamSkills.get(key);
+                }
+                playerList += "\n" + thisPlayer.getName();
+            }
+
+            teamTotalScore = thisTeam.getSkillsSum();
+            if (teamTotalScore < teamSmallestScore || teamSmallestScore == -1) {
+                teamSmallestScore = teamTotalScore;
+            }
+            if (teamTotalScore > teamBiggestScore) {
+                teamBiggestScore = teamTotalScore;
+            }
+
+            tv.append("Team #" + thisTeamNumber + ", " + thisTeam.size() + " players (" + teamTotalScore + ")\n--------------------------\n" + playerList + "\n\n");
+        }
+
+//        if (sp.getBooleanPreference("ShowDetailedAlgorithmResults")) {
+//            TextView differentialText = new TextView(this);
+//            differentialText.setPadding(0, 10, 0, 0);
+//            differentialText.setTextColor(Color.WHITE);
+//            differentialText.setText(
+//                    String.format(resources.getString(R.string.cumulativeDifferential), (teamBiggestScore - teamSmallestScore))
+//            );
+//            ll.addView(differentialText);
+//
+//            TextView it = new TextView(this);
+//            it.setTextColor(Color.WHITE);
+//            it.setText(resources.getString(R.string.individualDifferentialsHeader));
+//            ll.addView(it);
+//            // display differentials for each skill.  works for both high/low.
+//            TableLayout tl = new TableLayout(this);
+//            Iterator<String> tsitr = highestSkills.keySet().iterator();
+//            int totalIndividual = 0;
+//            while (tsitr.hasNext()) {
+//                String thisskill = tsitr.next();
+//                TextView dTitle = new TextView(this);
+//                TextView dText = new TextView(this);
+//                dTitle.setTextColor(Color.WHITE);
+//                dTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+//                dTitle.setPadding(0, 0, 15, 0);
+//                TableRow tr = new TableRow(this);
+//                dTitle.setText(thisskill);
+//                tr.addView(dTitle);
+//                dText.setText("" + (highestSkills.get(thisskill) - lowestSkills.get(thisskill)));
+//                totalIndividual += (highestSkills.get(thisskill) - lowestSkills.get(thisskill));
+//                tr.addView(dText);
+//                tl.addView(tr);
+//            }
+//
+//            // add a total
+//            TextView dTitle = new TextView(this);
+//            TextView dText = new TextView(this);
+//            dText.setText(Integer.toString(totalIndividual));
+//            dTitle.setTextColor(Color.WHITE);
+//            dTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+//            dTitle.setPadding(0, 0, 15, 0);
+//            TableRow tr = new TableRow(this);
+//            dTitle.setText(resources.getString(R.string.individualDifferentialsTotal));
+//            tr.addView(dTitle);
+//            tr.addView(dText);
+//            tl.addView(tr);
+//            ll.addView(tl);
+//        }
     }
 
     @Override

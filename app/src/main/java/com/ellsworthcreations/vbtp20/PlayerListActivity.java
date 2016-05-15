@@ -108,7 +108,6 @@ public class PlayerListActivity extends AppCompatActivity {
             holder.mPresent.setOnCheckedChangeListener( new Switch.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton cb, boolean v) {
                     player.setActive(v); player.save();
-
                 }
             });
 

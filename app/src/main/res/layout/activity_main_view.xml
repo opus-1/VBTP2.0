@@ -52,7 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/preferences_button"
-                style="@style/Theme.AppCompat.DayNight" />
+                style="@style/Theme.AppCompat.DayNight"
+                android:onClick="openSettings" />
 
         </LinearLayout>
     </FrameLayout>
