@@ -1,10 +1,12 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -49,8 +51,25 @@ public class PlayerDetailActivity extends AppCompatActivity {
             PlayerDetailFragment fragment = new PlayerDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.player_detail_container, fragment)
-                    .commit();
+                .add(R.id.player_detail_container, fragment)
+                .commit();
+
+            final Player player = VBTP.PlayerDB().getPlayerByID(getIntent().getIntExtra(PlayerDetailFragment.ARG_ITEM_ID, 0));
+            Log.d("PlayerDetailActivity", "Player is " + player.getName());
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.deletePlayerFAB);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    player.delete();
+                    Snackbar.make(view, "Deleted " + player.getName(), Snackbar.LENGTH_LONG).
+                        setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                player.save();
+                            }
+                        }).show();
+                }
+            });
         }
     }
 

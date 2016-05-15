@@ -1,8 +1,12 @@
 package com.ellsworthcreations.vbtp20;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -101,7 +105,7 @@ public class PlayerDetailFragment extends Fragment {
             name.addTextChangedListener(new TextWatcher() {
 
                 public void afterTextChanged(Editable s) {
-                    String[] names = s.toString().split(" *", 2);
+                    String[] names = s.toString().split(" ", 2);
                     player.setName(names[0], names[1]);
                     player.save();
                 }
@@ -120,9 +124,9 @@ public class PlayerDetailFragment extends Fragment {
                 RatingBar rb = (RatingBar) skillView.findViewWithTag("SkillRating");
                 rb.setTag(skill);
                 rb.setRating((float) player.getSkill(skill));
-                rb.setOnRatingBarChangeListener( new RatingBar.OnRatingBarChangeListener() {
+                rb.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                     public void onRatingChanged(RatingBar b, float v, boolean fromuser) {
-                        if(fromuser) {
+                        if (fromuser) {
                             player.setSkill((String) b.getTag().toString(), (int) v);
                             player.save();
                         }
@@ -131,6 +135,7 @@ public class PlayerDetailFragment extends Fragment {
                 skillsContainer.addView(skillView);
             }
         }
+
         return rootView;
     }
 }

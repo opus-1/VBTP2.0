@@ -64,9 +64,22 @@ public class Player {
 		this.db = mydb;
 	}
 
+	public long delete()
+	{
+		return db.deletePlayerByID(this.playerID);
+	}
+
 	public long save()
 	{
-		return db.editPlayer(this);
+		if(this.playerID != 0)
+		{ return db.editPlayer(this); }
+		else
+		{
+			long id = db.insertPlayer(this);
+			Log.d("Player", "After insert, here was the returned ID: " + id);
+			this.playerID = (int) id;
+			return id;
+		}
 	}
 	
 	public String getCSV()

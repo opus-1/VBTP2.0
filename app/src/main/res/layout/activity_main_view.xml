@@ -2,22 +2,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
-    tools:context=".MainView">
+    tools:context=".MainView"
+    style="@style/AppTheme"
+    android:background="#ffffff">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-    <TextView
+    <LinearLayout
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:orientation="vertical"
         android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
+        android:layout_marginTop="16dp">
+        <include layout="@layout/picked_teams" />
+    </LinearLayout>
+
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
@@ -42,21 +43,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/edit_player_button"
-                android:onClick="editPlayers" />
-
-            <Button
-                android:id="@+id/repick_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/repick_button" />
+                android:onClick="editPlayers"
+                style="@style/Theme.AppCompat.DayNight" />
 
             <Button
                 android:id="@+id/preferences_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/preferences_button" />
+                android:text="@string/preferences_button"
+                style="@style/Theme.AppCompat.DayNight" />
 
         </LinearLayout>
     </FrameLayout>

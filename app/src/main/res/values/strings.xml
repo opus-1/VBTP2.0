@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">VBTP2.0</string>
+    <string name="app_name">Volleyball Team Picker</string>
 
-    <string name="edit_player_button">Edit Players</string>
-    <string name="repick_button">Repick Teams</string>
+    <string name="edit_player_button">Players</string>
+    <string name="repick_button">Repick</string>
     <string name="preferences_button">Options</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_settings">Settings</string>
@@ -71,5 +71,6 @@
     <string name="addGender_female">Female</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
-    <string name="active_prompt">Active</string>
+    <string name="active_prompt">Active?</string>
+    <string name="present_switch_text">Active?</string>
 </resources>

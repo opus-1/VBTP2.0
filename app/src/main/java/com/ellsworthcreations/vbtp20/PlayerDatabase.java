@@ -17,10 +17,10 @@ public class PlayerDatabase extends SQLiteOpenHelper {
 	public static final String colFirstName = "firstName";
 	public static final String colLastName = "lastName";
 	public static final String colActive = "active";
-	
+	public static final String colPresent = "present";
 	public static final String colGender = "gender";
-	public static final int FieldsBeforeSkills = 5;
-	private static final int DATABASE_VERSION = 11;
+	public static final int FieldsBeforeSkills = 6;
+	private static final int DATABASE_VERSION = 12;
 
 	// needs to be edited below to match colSkills.  Sort of.  This is the radio buttons for
 	// skill values.

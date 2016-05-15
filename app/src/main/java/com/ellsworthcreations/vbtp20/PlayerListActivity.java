@@ -8,12 +8,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +49,18 @@ public class PlayerListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Player p = new Player(-1, "Doe", "John", true, VBTP.PlayerDB());
+                p.save();
+                if(p.getPlayerID() > 0) {
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, PlayerDetailActivity.class);
+                    intent.putExtra(PlayerDetailFragment.ARG_ITEM_ID, p.getPlayerID());
+                    context.startActivity(intent);
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Could not create new player.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -90,26 +102,33 @@ public class PlayerListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mItem = players.get(position);
             holder.mIdView.setText(players.get(position).getLastName() + ", " + players.get(position).getFirstName());
-            holder.mContentView.setText(players.get(position).getGender().toString());
+            holder.mContentView.setText(Integer.toString(players.get(position).getSkills().cumulativeSkills()));
+            holder.mPresent.setChecked(players.get(position).isActive());
+            final Player player = players.get(position);
+            holder.mPresent.setOnCheckedChangeListener( new Switch.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton cb, boolean v) {
+                    player.setActive(v); player.save();
+
+                }
+            });
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putInt(PlayerDetailFragment.ARG_ITEM_ID, holder.mItem.getPlayerID());
-                        PlayerDetailFragment fragment = new PlayerDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.player_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, PlayerDetailActivity.class);
-                        intent.putExtra(PlayerDetailFragment.ARG_ITEM_ID, holder.mItem.getPlayerID());
-
-                        context.startActivity(intent);
-                    }
+                if (mTwoPane) {
+                    Bundle arguments = new Bundle();
+                    arguments.putInt(PlayerDetailFragment.ARG_ITEM_ID, holder.mItem.getPlayerID());
+                    PlayerDetailFragment fragment = new PlayerDetailFragment();
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.player_detail_container, fragment)
+                            .commit();
+                } else {
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, PlayerDetailActivity.class);
+                    intent.putExtra(PlayerDetailFragment.ARG_ITEM_ID, holder.mItem.getPlayerID());
+                    context.startActivity(intent);
+                }
                 }
             });
         }
@@ -123,13 +142,15 @@ public class PlayerListActivity extends AppCompatActivity {
             public final View mView;
             public final TextView mIdView;
             public final TextView mContentView;
+            public final Switch mPresent;
             public Player mItem;
 
             public ViewHolder(View view) {
                 super(view);
                 mView = view;
-                mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mIdView = (TextView) view.findViewById(R.id.player_list_column_1);
+                mContentView = (TextView) view.findViewById(R.id.player_list_column_2);
+                mPresent = (Switch) view.findViewById(R.id.playerIsPresent);
             }
 
             @Override
