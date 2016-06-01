@@ -1,5 +1,7 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -121,21 +123,21 @@ public class Team extends LinkedList<Player> {
 		this.remove(tp);
 	}
 	
-	public Player removeAverage()
+	public Player removeAverage(Context ctx)
 	{
 		if(this.size() == 0) { return null; }
 		else if(this.size() == 1) { return this.removeFirst(); }
 		
 		Player averagePlayer = this.getAveragePlayer();
 		Player player = this.getFirst();
-		double distanceFromAverage = averagePlayer.distanceTo(player);
+		double distanceFromAverage = averagePlayer.distanceTo(ctx, player);
 		
 		ListIterator<Player> itr = this.listIterator();
 		while(itr.hasNext())
 		{
 			Player tp = itr.next();
-			if(averagePlayer.distanceTo(tp) > distanceFromAverage)
-			{ player = tp; distanceFromAverage = averagePlayer.distanceTo(tp); }
+			if(averagePlayer.distanceTo(ctx, tp) > distanceFromAverage)
+			{ player = tp; distanceFromAverage = averagePlayer.distanceTo(ctx, tp); }
 		}
 		this.remove(player);
 		return player;
@@ -216,10 +218,10 @@ public class Team extends LinkedList<Player> {
 		return false;
 	}
 	
-	public double distanceTo(Team team2)
-	{ return distanceTo(team2, false); }
+	public double distanceTo(Context ctx, Team team2)
+	{ return distanceTo(ctx, team2, false); }
 	
-	public double distanceTo(Team team2, boolean padWithAverage)
+	public double distanceTo(Context ctx, Team team2, boolean padWithAverage)
 	{
 		//Log.v("TeamDistance", "Getting distances for teams 1 and 2...");
 		
@@ -239,6 +241,6 @@ public class Team extends LinkedList<Player> {
 //			for(int i=team2.size(); i < this.size(); i++)
 //			{ map2.add(TeamPicker.averagePlayer.getSkills()); }
 		}
-		return map1.distanceTo(map2);
+		return map1.distanceTo(ctx, map2);
 	}
 }

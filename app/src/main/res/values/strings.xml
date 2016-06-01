@@ -12,10 +12,8 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
+    <string name="pref_title_gender_distribution">Equal Gender Distribution</string>
+    <string name="pref_desc_enable_equal_gender_distribution">Attempt to force equal gender distribution in chosen teams</string>
 
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
@@ -73,4 +71,10 @@
     <string name="gender_female">Female</string>
     <string name="active_prompt">Active?</string>
     <string name="present_switch_text">Active?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cancel">Cancel</string>
+    <string name="button_split">Split Players</string>
+    <string name="button_pair">Pair Players</string>
 </resources>

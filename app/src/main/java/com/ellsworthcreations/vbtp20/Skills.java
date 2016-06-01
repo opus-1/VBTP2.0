@@ -1,5 +1,8 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
+
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -41,19 +44,19 @@ public class Skills extends HashMap<String, Integer> {
 		return cumSkills;
 	}
 	
-	public double distanceTo(Team team1)
+	public double distanceTo(Context ctx, Team team1)
 	{
 		Skills map2 = team1.getSkillAverages();
 //		if(team1.size() == 0) { map2 = TeamPicker.averagePlayer.getSkills(); }
-		return this.distanceTo(map2);
+		return this.distanceTo(ctx, map2);
 	}
 	
-	public double distanceTo(Player p2)
+	public double distanceTo(Context ctx, Player p2)
 	{
-		return this.distanceTo(p2.getSkills());
+		return this.distanceTo(ctx, p2.getSkills());
 	}
 	
-	public double distanceTo(Skills map2)
+	public double distanceTo(Context ctx, Skills map2)
 	{
 		double distance = 0;
 		Iterator<String> hitr = this.keySet().iterator();
@@ -61,7 +64,7 @@ public class Skills extends HashMap<String, Integer> {
 		{ 
 			String key = hitr.next();
 			//Log.d("MapDistance", "Raw distance between skill " + key + "(" + map1.get(key) + "-" + map2.get(key) + "): " + (map1.get(key)-map2.get(key)));
-			int weight = VBTP.MyGlobalPreferences.getIntegerPreference("Weights_"+key);
+			int weight = VBTP.getSkillWeight(ctx, key);
 			if(weight == -1 || weight == 0) { weight = 1; }
 			double difference = (this.get(key)*weight) - (map2.get(key)*weight);
 			distance += (difference*difference);

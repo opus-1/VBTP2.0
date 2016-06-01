@@ -1,13 +1,15 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+
 import java.util.Iterator;
 
 /**
  * Created by Paul on 5/14/2016.
  */
 public class BringTeamsTowardAverageAlgorithm extends TeamPickingAlgorithm {
-    public BringTeamsTowardAverageAlgorithm(Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
-        super(allPlayers, numberOfTeams, randomize, forceEqualGenders);
+    public BringTeamsTowardAverageAlgorithm(Context ctx, Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
+        super(ctx, allPlayers, numberOfTeams, randomize, forceEqualGenders);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class BringTeamsTowardAverageAlgorithm extends TeamPickingAlgorithm {
                 myMap.put(thisSkill, thisTS / (teams.get(myTeam).size() + 1));
             }
 
-            double thisOne = myMap.distanceTo(startingAveragePlayer);
+            double thisOne = myMap.distanceTo(context, startingAveragePlayer);
 
             if (thisOne < bestDistance || bestDistance == -1) {
                 bestDistance = thisOne;
@@ -104,7 +106,7 @@ public class BringTeamsTowardAverageAlgorithm extends TeamPickingAlgorithm {
         // get the player furthest from the average player
         while (pitr.hasNext()) {
             Player p1 = pitr.next();
-            double thisDistance = p1.distanceTo(grandAveragePlayer);
+            double thisDistance = p1.distanceTo(this.context, grandAveragePlayer);
             if (thisDistance > largestDistanceFromAverage || largestDistanceFromAverage == -1) {
                 players[0] = p1;
                 largestDistanceFromAverage = thisDistance;
@@ -125,7 +127,7 @@ public class BringTeamsTowardAverageAlgorithm extends TeamPickingAlgorithm {
             tt.add(players[0]);
             tt.add(p1);
 
-            double thisDistance = grandAveragePlayer.distanceTo(tt);
+            double thisDistance = grandAveragePlayer.distanceTo(this.context, tt);
             if (thisDistance < distanceFromGrandAverageAsTeam || distanceFromGrandAverageAsTeam == -1) {
                 players[1] = p1;
                 distanceFromGrandAverageAsTeam = thisDistance;

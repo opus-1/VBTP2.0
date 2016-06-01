@@ -1,11 +1,13 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+
 /**
  * Created by Paul on 5/14/2016.
  */
 public class RandomAlgorithm extends TeamPickingAlgorithm {
-    public RandomAlgorithm(Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
-        super(allPlayers, numberOfTeams, randomize, forceEqualGenders);
+    public RandomAlgorithm(Context ctx, Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
+        super(ctx, allPlayers, numberOfTeams, randomize, forceEqualGenders);
     }
 
     @Override

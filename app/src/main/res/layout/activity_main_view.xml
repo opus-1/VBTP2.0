@@ -44,7 +44,9 @@
                 android:layout_weight="1"
                 android:text="@string/edit_player_button"
                 android:onClick="editPlayers"
-                style="@style/Theme.AppCompat.DayNight" />
+                style="@style/AppTheme"
+                android:background="@color/colorBackground"
+                android:textColor="@color/colorPrimary" />
 
             <Button
                 android:id="@+id/preferences_button"
@@ -53,7 +55,9 @@
                 android:layout_weight="1"
                 android:text="@string/preferences_button"
                 style="@style/Theme.AppCompat.DayNight"
-                android:onClick="openSettings" />
+                android:onClick="openSettings"
+                android:background="@color/colorBackground"
+                android:textColor="@color/colorPrimary" />
 
         </LinearLayout>
     </FrameLayout>

@@ -1,5 +1,6 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -22,10 +23,12 @@ public class TeamPickingAlgorithm {
     public int numberOfTeams = 2;
     public boolean startedPickingOtherGender = false;
     public boolean oneFirstPickAtATime = false;
+    public Context context;
 
     public TeamPickingAlgorithm() { }
 
-    public TeamPickingAlgorithm(Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
+    public TeamPickingAlgorithm(Context ctx, Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
+        this.context = ctx;
         this.allPlayers = allPlayers;
         this.numberOfTeams = numberOfTeams;
         this.forceEqualGenders = forceEqualGenders;
@@ -81,9 +84,9 @@ public class TeamPickingAlgorithm {
             if (isSelected) {
                 // we don't want to split up any pairs or anti-pairs... so
                 // random functionality stuff won't include those.
-                if (!randomize || forceEqualGenders || i % randomRemovalInterval != 0)
-//                        || PlayerPicker.getAllAntiPairsForPlayer(allPlayers[i].getPlayerID()).length != 0
-//                        || PlayerPicker.getAllPairsForPlayer(allPlayers[i].getPlayerID()).length != 0)
+                if (!randomize || forceEqualGenders || i % randomRemovalInterval != 0
+                        || ! VBTP.getAntiPairsForPlayer(allPlayers[i]).isEmpty()
+                        || ! VBTP.getPairsForPlayer(allPlayers[i]).isEmpty())
                 {
                  playerPool.add(allPlayers[i]);
                 }
@@ -116,30 +119,31 @@ public class TeamPickingAlgorithm {
         averagePlayer = startingAveragePlayer;
 
         int originalPlayerPoolSize = playerPool.size();
-        //Log.d("RepickTeams","randomize: " + randomize);
         // CONSTRAINTS ... SORT ALL CONSTRAINTS FIRST
-//        if (PlayerPicker.constraintsExist() && sp.getBooleanPreference("ShowPairOptions")) {
-//            teams = sortOutConstraintsFirst(teams, playerPool, startingAveragePlayer, randomize);
-//            if (teams == null) {
-//                return null;
-//            }
-//            Iterator<Team> teamsItr = teams.iterator();
-//            while (teamsItr.hasNext()) {
-//                Team thisTeam = teamsItr.next();
-//                Iterator<Player> teamItr = thisTeam.iterator();
-//                while (teamItr.hasNext()) {
-//                    Player tp = teamItr.next();
-//                    Iterator<Player> pitr = playerPool.iterator();
-//                    while (pitr.hasNext()) {
-//                        Player tp2 = pitr.next();
-//                        if (tp.getPlayerID() == tp2.getPlayerID()) {
-//                            playerPool.remove(tp2);
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        if (VBTP.constraintsExist()) {
+            Log.d("Constraints", "Sorting out constraints...");
+            teams = sortOutConstraintsFirst(teams, playerPool, startingAveragePlayer, randomize);
+            if (teams == null) {
+                Log.d("Constraints", "Constraints returned null :(");
+                return null;
+            }
+            Iterator<Team> teamsItr = teams.iterator();
+            while (teamsItr.hasNext()) {
+                Team thisTeam = teamsItr.next();
+                Iterator<Player> teamItr = thisTeam.iterator();
+                while (teamItr.hasNext()) {
+                    Player tp = teamItr.next();
+                    Iterator<Player> pitr = playerPool.iterator();
+                    while (pitr.hasNext()) {
+                        Player tp2 = pitr.next();
+                        if (tp.getPlayerID() == tp2.getPlayerID()) {
+                            playerPool.remove(tp2);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         // now that constraints are sorted out, sort lists of genders if necessary.
         // pick a certain gender first, possibly.
@@ -173,7 +177,7 @@ public class TeamPickingAlgorithm {
                     Log.d("EqualGenders", "Before removing: " + femalePlayers);
                     while (femalePlayers.size() >= numberOfTeams) {
                         for (int i = 0; i < numberOfTeams; i++) {
-                            firstPlayers.add(femalePlayers.removeAverage());
+                            firstPlayers.add(femalePlayers.removeAverage(this.context));
                         }
                     }
                     Log.d("EqualGenders", "After removing: " + femalePlayers);
@@ -265,7 +269,7 @@ public class TeamPickingAlgorithm {
             Iterator<Integer> titr = lowestMembershipTeams.iterator();
             while (titr.hasNext()) {
                 int thisTeam = titr.next();
-                double thisDistance = grandAveragePlayer.distanceTo(teams.get(thisTeam));
+                double thisDistance = grandAveragePlayer.distanceTo(this.context, teams.get(thisTeam));
                 if (highestDistance == -1 || thisDistance < highestDistance) {
                     nextTeam = thisTeam;
                     highestDistance = thisDistance;
@@ -348,7 +352,7 @@ public class TeamPickingAlgorithm {
             myt.add(tp);
             teams.set(myTeam, myt);
 
-            double thisOne = teams.getLargestDifferenceBetweenTeams();
+            double thisOne = teams.getLargestDifferenceBetweenTeams(this.context);
 
             if (thisOne < bestDistance || bestDistance == -1) {
                 bestDistance = thisOne;
@@ -363,10 +367,7 @@ public class TeamPickingAlgorithm {
         return bestPlayer;
     }
 
-        /*
-            TODO: This needs to be fixed.  It refers to the PlayerPicker, where you can also do things like add splits and pairs.
-        */
-        private TeamSet sortOutConstraintsFirst(
+    private TeamSet sortOutConstraintsFirst(
             TeamSet teams,
             Team playerPool, Player startingAveragePlayer,
             boolean randomize) {
@@ -390,92 +391,93 @@ public class TeamPickingAlgorithm {
             }
 
             //Log.d("Constraints","Checking to see if " + tp.getName() + " has any constraints.");
-//            if (PlayerPicker.getAntiPairsForPlayer(tp.getPlayerID()).length != 0 || PlayerPicker.getPairsForPlayer(tp.getPlayerID()).length != 0) {
-//				/* this could be made a separate function.
-//				*  so... best would probably be to put each player in the "anti pair" on the team
-//				*  such that it would bring that team closer to the other teams.
-//				*  also, we need to factor in any baggage that this player might have...
-//				*  so actually, this "player" will end up being a team.
-//
-//				*  so, for example.  Justin /!/ Kyle and Kyle /!/ Justin.
-//				* First we get Justin.
-//				* We put Justin on a team.
-//				* We process Justin's "anti-pair" list and put them on other teams.
-//				*/
-//                //Log.d("Constraints","Trying to put player " + tp.getName() + " onto a team.");
-//                int[] antiPairList = PlayerPicker.getAllAntiPairsForPlayer(tp.getPlayerID());
-//
-//                // make it a one man team.
-//                Team tt = new Team();
-//                tt.add(tp);
-//
-//                if (PlayerPicker.getPairsForPlayer(tp.getPlayerID()).length != 0) {
-//                    //Log.d("Pairs","Getting all pairs.");
-//                    int[] pp = PlayerPicker.getAllPairsForPlayer(tp.getPlayerID());
-//                    //Log.d("Pairs","pairs length: " + pp.length);
-//                    // so this player has positive pairings.
-//                    for (int k = 0; k < pp.length; k++) {
-//                        Player tp3 = VBTP.PlayerDB.getPlayerByID(pp[k]);
-//                        tt.add(tp3);
-//                        //Log.d("Pair", tp3.getName() + " has to be with " + tp.getName());
-//                    }
-//                }
-//
-//                // now figure out which team to add this one to.  It can't be on any of the teams that has
-//                // one of the "anti" pair people.
-//                int bestTeamIndex = -1;
-//                double distanceFromOtherTeams = -1;
-//                for (int x = 0; x < teams.size(); x++) {
-//                    TeamSet teamsCopy = new TeamSet(teams);
-//                    Team thisTeam = teamsCopy.get(x);
-//
-//                    Iterator<Player> titr2 = thisTeam.iterator();
-//                    //Log.d("AntiPairs","thisTeam size: " + thisTeam.size());
-//                    boolean cannotGoOn = false;
-//                    while (titr2.hasNext()) {
-//                        Player tp3 = titr2.next();
-//                        //Log.d("AntiPairCheck","Checking to see if " + tp3.getName() + " is in the anti pair list");
-//                        for (int l = 0; l < antiPairList.length; l++) {
-//                            // this is an anti-pair list FOR player tp2.  That means that
-//                            // tp2 will not be in the list.
-//                            //if(antiPairList[l] == tp2.getPlayerID()) { continue; } // don't check for myself.
-//                            // tp3, a player in "thisTeam," matches one of the other players that tp2 can NOT  be on.
-//
-//                            if (tp3.getPlayerID() == antiPairList[l]) {
-//                                cannotGoOn = true;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    if (cannotGoOn) {
-//                        //Log.d("AntiPairCheck","Cannot put " + tp.getName() + " on this team.");
-//                        continue;
-//                    }
-//                    Team thisTeamCopy = thisTeam.copy();
-//                    thisTeamCopy.addAll(tt);
-//                    teamsCopy.set(x, thisTeamCopy);
-//
-//                    double thisDistance = teamsCopy.getLargestDifferenceBetweenTeams(true);
-//                    Log.d("BestTeamPlacement", "With this team, the teams had the largest difference between teams of " + thisDistance + ": " + thisTeamCopy);
-//                    if (
-//                            (distanceFromOtherTeams == -1 || thisDistance < distanceFromOtherTeams)
-//                                    && thisTeamCopy.size() < (playerPool.size() / numberOfTeams)
-//                            ) {
-//                        distanceFromOtherTeams = thisDistance;
-//                        bestTeamIndex = teams.indexOf(thisTeam);
-//                    }
-//                }
-//
-//                if (bestTeamIndex == -1) {
-////                    toast(getResources().getString(R.string.teamPicker_cannotSolve));
-//                    return null;
-//                }
-//
-//                Team thisTeam = teams.get(bestTeamIndex);
-//                thisTeam.addAll(tt);
-//                usedPlayers.addAll(tt);
-//                teams.set(bestTeamIndex, thisTeam);
-//            }
+            if (!VBTP.getAntiPairsForPlayer(tp).isEmpty() || !VBTP.getPairsForPlayer(tp).isEmpty()) {
+				/* this could be made a separate function.
+				*  so... best would probably be to put each player in the "anti pair" on the team
+				*  such that it would bring that team closer to the other teams.
+				*  also, we need to factor in any baggage that this player might have...
+				*  so actually, this "player" will end up being a team.
+
+				*  so, for example.  Justin /!/ Kyle and Kyle /!/ Justin.
+				* First we get Justin.
+				* We put Justin on a team.
+				* We process Justin's "anti-pair" list and put them on other teams.
+				*/
+                Log.d("Constraints","Trying to put player " + tp.getName() + " onto a team.");
+                ArrayList<Player> antiPairList = VBTP.getAntiPairsForPlayer(tp);
+
+                // make it a one man team.
+                Team tt = new Team();
+                tt.add(tp);
+
+                if (!VBTP.getPairsForPlayer(tp).isEmpty()) {
+                    //Log.d("Pairs","Getting all pairs.");
+                    ArrayList<Player> pairList = VBTP.getPairsForPlayer(tp);
+                    //Log.d("Pairs","pairs length: " + pp.length);
+                    // so this player has positive pairings.
+                    for(Player tp3: pairList) {
+                        tt.add(tp3);
+                        Log.d("Pair", tp3.getName() + " has to be with " + tp.getName());
+                    }
+                }
+
+                // now figure out which team to add this one to.  It can't be on any of the teams that has
+                // one of the "anti" pair people.
+                int bestTeamIndex = -1;
+                double distanceFromOtherTeams = -1;
+                for (int x = 0; x < teams.size(); x++) {
+                    TeamSet teamsCopy = new TeamSet(teams);
+                    Team thisTeam = teamsCopy.get(x);
+
+                    Iterator<Player> titr2 = thisTeam.iterator();
+                    Log.d("AntiPairs","thisTeam size: " + thisTeam.size());
+                    boolean cannotGoOn = false;
+                    while (titr2.hasNext()) {
+                        Player tp3 = titr2.next();
+                        Log.d("AntiPairCheck","Checking to see if " + tp3.getName() + " is in the anti pair list");
+                        for(Player tp4: antiPairList) {
+                            // this is an anti-pair list FOR player tp2.  That means that
+                            // tp2 will not be in the list.
+                            if(tp4.equals(tp3)) { continue; } // don't check for myself.
+                            // tp3, a player in "thisTeam," matches one of the other players that tp2 can NOT  be on.
+
+                            if (tp3.equals(tp4)) {
+                                Log.d("AntiPairCheck", "He is, so we can't use this team: " + thisTeam);
+                                cannotGoOn = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (cannotGoOn) {
+                        Log.d("AntiPairCheck","Cannot put " + tp.getName() + " on this team:" + thisTeam);
+                        continue;
+                    }
+                    Team thisTeamCopy = thisTeam.copy();
+                    thisTeamCopy.addAll(tt);
+                    teamsCopy.set(x, thisTeamCopy);
+
+                    double thisDistance = teamsCopy.getLargestDifferenceBetweenTeams(this.context, true);
+                    Log.d("BestTeamPlacement", "With this team, the teams had the largest difference between teams of " + thisDistance + ": " + thisTeamCopy);
+                    if (
+                            (distanceFromOtherTeams == -1 || thisDistance < distanceFromOtherTeams)
+                                    && thisTeamCopy.size() <= (playerPool.size() / numberOfTeams)
+                            ) {
+                        distanceFromOtherTeams = thisDistance;
+                        bestTeamIndex = teams.indexOf(thisTeam);
+                    }
+                }
+
+                if (bestTeamIndex == -1) {
+//                    toast(getResources().getString(R.string.teamPicker_cannotSolve));
+                    Log.d("TeamPickingAlgorithm", "Cannot solve constraints.");
+                    return null;
+                }
+
+                Team thisTeam = teams.get(bestTeamIndex);
+                thisTeam.addAll(tt);
+                usedPlayers.addAll(tt);
+                teams.set(bestTeamIndex, thisTeam);
+            }
         }
 
         return teams;
@@ -517,7 +519,7 @@ public class TeamPickingAlgorithm {
                 if (p1.getPlayerID() == p2.getPlayerID()) {
                     continue;
                 }
-                double thisDistance = p1.distanceTo(p2);
+                double thisDistance = p1.distanceTo(this.context, p2);
                 if (thisDistance > largestDistance || largestDistance == -1) {
                     //Log.d("RickAlgorithm", "new best player pair is " + p1.getName() + " and " + p2.getName() + " who are " + thisDistance + " apart.");
                     players[0] = p1;

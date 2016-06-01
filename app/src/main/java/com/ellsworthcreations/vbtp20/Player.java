@@ -71,7 +71,7 @@ public class Player {
 
 	public long save()
 	{
-		if(this.playerID != 0)
+		if(this.playerID > 0)
 		{ return db.editPlayer(this); }
 		else
 		{
@@ -121,16 +121,16 @@ public class Player {
 		}
 	}
 	
-	public double distanceTo(Team team1)
+	public double distanceTo(Context ctx, Team team1)
 	{
 		Skills map2 = team1.getSkillAverages();
 //		if(team1.size() == 0) { map2 = TeamPicker.averagePlayer.getSkills(); }
-		return this.getSkills().distanceTo(map2);
+		return this.getSkills().distanceTo(ctx, map2);
 	}
 
-	public double distanceTo(Player aPlayer)
+	public double distanceTo(Context ctx, Player aPlayer)
 	{
-		return this.getSkills().distanceTo(aPlayer.getSkills());
+		return this.getSkills().distanceTo(ctx, aPlayer.getSkills());
 	}
 	
 	public Skills getSkills()

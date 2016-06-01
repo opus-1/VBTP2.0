@@ -1,7 +1,9 @@
 package com.ellsworthcreations.vbtp20;
 
 import android.annotation.SuppressLint;
+import android.support.v4.app.DialogFragment;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,7 +11,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Iterator;
@@ -19,12 +22,12 @@ import java.util.ListIterator;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MainView extends AppCompatActivity {
+public class MainView extends AppCompatActivity implements PairOrSplitFragment.PairOrSplitListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
      */
-    private static final boolean AUTO_HIDE = true;
+    private static final boolean AUTO_HIDE = false;
 
     /**
      * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
@@ -93,6 +96,9 @@ public class MainView extends AppCompatActivity {
     // the currently displaying teamset.
     public TeamSet chosenTeams =  null;
 
+    // force the teams to be re-chosen
+    private Boolean forcePick = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,17 +111,29 @@ public class MainView extends AppCompatActivity {
 
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
+//        mContentView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                toggle();
+//            }
+//        });
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.edit_player_button).setOnTouchListener(mDelayHideTouchListener);
+    }
+
+    /** What happens when you split or pair things. **/
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        forcePick = true;
+        showConstraints();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
     }
 
     public void editPlayers(View view) {
@@ -128,16 +146,53 @@ public class MainView extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void splitPlayers(View view) {
+        PairOrSplitFragment pairFragment = new PairOrSplitFragment();
+        pairFragment.setSplit(true);
+        pairFragment.show(getSupportFragmentManager(), "splitting");
+    }
+
+    public void pairPlayers(View view) {
+        PairOrSplitFragment pairFragment = new PairOrSplitFragment();
+        pairFragment.setSplit(false);
+        pairFragment.show(getSupportFragmentManager(), "pairing");
+    }
+
+    public void showConstraints() {
+        LinearLayout pairs_and_splits = (LinearLayout) this.findViewById(R.id.pairs_and_splits);
+        pairs_and_splits.removeAllViews();
+        for(Constraint c: VBTP.constraints) {
+            View ll = getLayoutInflater().inflate(R.layout.pair_or_split_view_single, null);
+            ll.findViewById(R.id.pair_or_split_view_remove_button).setTag(c);
+            TextView tv = (TextView) ll.findViewById(R.id.pair_or_split_view_text);
+            tv.setText(c.toString());
+            pairs_and_splits.addView(ll);
+        }
+    }
+
+    public void deleteConstraint(View v) {
+        forcePick = true;
+        Constraint c = (Constraint) v.getTag();
+        VBTP.removeConstraint(c);
+        showConstraints();
+    }
+
     public void pickTeams(View view) {
+        view.setEnabled(false);
         // this is to make sure we can get skill weights and stuff.
-        Preferences gp = VBTP.GlobalPreferences(this.getBaseContext());
         Player[] allPlayers = VBTP.PlayerDB(this.getBaseContext()).getActivePlayersSortedByName();
         Log.d("pickTeams", "length is: "+allPlayers.length);
 
         // this needs to go into an async thing.
-        TeamPicker tp = new TeamPicker(2, allPlayers, chosenTeams, false);
-        chosenTeams = tp.repickTeams(true, true, (Button) view);
+        Boolean forceEqualGenders = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext()).getBoolean("pref_gender_distribution", false);
+        TeamPicker tp = new TeamPicker(this.getApplicationContext(), 2, allPlayers, chosenTeams, forceEqualGenders);
+        if(forcePick) {
+            tp = new TeamPicker(this.getApplicationContext(), 2, allPlayers, null, forceEqualGenders);
+        }
+        chosenTeams = tp.repickTeams(true, true, (ImageButton) view);
         updateDisplayWithTeams(chosenTeams);
+        view.setEnabled(true);
+        forcePick = false;
     }
 
     public void updateDisplayWithTeams(TeamSet teams) {
@@ -147,6 +202,7 @@ public class MainView extends AppCompatActivity {
         int teamSmallestScore = -1;
         Skills highestSkills = new Skills();
         Skills lowestSkills = new Skills(new int[]{0, 0, 0, 0, 0, 0, 0});
+        if(teams == null) { tv.setText("Could not generate teams."); return; }
 
         for (int i = 0; i < teams.size(); i++) {
             int thisTeamNumber = i + 1;
@@ -193,54 +249,6 @@ public class MainView extends AppCompatActivity {
 
             tv.append("Team #" + thisTeamNumber + ", " + thisTeam.size() + " players (" + teamTotalScore + ")\n--------------------------\n" + playerList + "\n\n");
         }
-
-//        if (sp.getBooleanPreference("ShowDetailedAlgorithmResults")) {
-//            TextView differentialText = new TextView(this);
-//            differentialText.setPadding(0, 10, 0, 0);
-//            differentialText.setTextColor(Color.WHITE);
-//            differentialText.setText(
-//                    String.format(resources.getString(R.string.cumulativeDifferential), (teamBiggestScore - teamSmallestScore))
-//            );
-//            ll.addView(differentialText);
-//
-//            TextView it = new TextView(this);
-//            it.setTextColor(Color.WHITE);
-//            it.setText(resources.getString(R.string.individualDifferentialsHeader));
-//            ll.addView(it);
-//            // display differentials for each skill.  works for both high/low.
-//            TableLayout tl = new TableLayout(this);
-//            Iterator<String> tsitr = highestSkills.keySet().iterator();
-//            int totalIndividual = 0;
-//            while (tsitr.hasNext()) {
-//                String thisskill = tsitr.next();
-//                TextView dTitle = new TextView(this);
-//                TextView dText = new TextView(this);
-//                dTitle.setTextColor(Color.WHITE);
-//                dTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-//                dTitle.setPadding(0, 0, 15, 0);
-//                TableRow tr = new TableRow(this);
-//                dTitle.setText(thisskill);
-//                tr.addView(dTitle);
-//                dText.setText("" + (highestSkills.get(thisskill) - lowestSkills.get(thisskill)));
-//                totalIndividual += (highestSkills.get(thisskill) - lowestSkills.get(thisskill));
-//                tr.addView(dText);
-//                tl.addView(tr);
-//            }
-//
-//            // add a total
-//            TextView dTitle = new TextView(this);
-//            TextView dText = new TextView(this);
-//            dText.setText(Integer.toString(totalIndividual));
-//            dTitle.setTextColor(Color.WHITE);
-//            dTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-//            dTitle.setPadding(0, 0, 15, 0);
-//            TableRow tr = new TableRow(this);
-//            dTitle.setText(resources.getString(R.string.individualDifferentialsTotal));
-//            tr.addView(dTitle);
-//            tr.addView(dText);
-//            tl.addView(tr);
-//            ll.addView(tl);
-//        }
     }
 
     @Override
@@ -250,7 +258,7 @@ public class MainView extends AppCompatActivity {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100);
+//        delayedHide(100);
     }
 
     private void toggle() {

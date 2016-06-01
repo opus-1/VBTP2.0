@@ -1,5 +1,7 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -71,10 +73,10 @@ public class TeamSet extends LinkedList<Team> {
 		return nt;
 	}
 	
-	public double getLargestDifferenceBetweenTeams()
-	{ return this.getLargestDifferenceBetweenTeams(false); }
+	public double getLargestDifferenceBetweenTeams(Context ctx)
+	{ return this.getLargestDifferenceBetweenTeams(ctx, false); }
 	
-	public double getLargestDifferenceBetweenTeams(boolean padWithAverage)
+	public double getLargestDifferenceBetweenTeams(Context ctx, boolean padWithAverage)
 	{
 		double greatestDifference = 0;
 		for(int i=0; i < this.size(); i++)
@@ -83,7 +85,7 @@ public class TeamSet extends LinkedList<Team> {
 			for(int j=i; j < this.size(); j++)
 			{
 				if(i == j) { continue; }
-				double myDifference2 = this.get(i).distanceTo(this.get(j), padWithAverage);
+				double myDifference2 = this.get(i).distanceTo(ctx, this.get(j), padWithAverage);
 				//Log.v("LargestDifference","Difference between team " + i + " and team " + j + ": " + myDifference2);
 				if(myDifference2 > myDifference)
 				{ myDifference = myDifference2; }

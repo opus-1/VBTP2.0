@@ -1,5 +1,7 @@
 package com.ellsworthcreations.vbtp20;
 
+import android.content.Context;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -8,8 +10,8 @@ import java.util.Random;
  * Created by Paul on 5/14/2016.
  */
 public class TeamCaptainAlgorithm extends TeamPickingAlgorithm {
-    public TeamCaptainAlgorithm(Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
-        super(allPlayers, numberOfTeams, randomize, forceEqualGenders);
+    public TeamCaptainAlgorithm(Context ctx, Player[] allPlayers, int numberOfTeams, boolean randomize, boolean forceEqualGenders) {
+        super(ctx, allPlayers, numberOfTeams, randomize, forceEqualGenders);
     }
 
     @Override
